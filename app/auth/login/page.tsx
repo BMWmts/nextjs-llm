@@ -7,7 +7,6 @@ const supabase: SupabaseClient = createClient();
 
 const LoginPage = () => {
   const SignInWithOAuth = async () => {
-    try {
       await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -15,11 +14,7 @@ const LoginPage = () => {
         },
       });
       // การเรียกใช้ signInWithOAuth จะเปิดหน้าต่างใหม่สำหรับการเข้าสู่ระบบ
-    } catch (err) {
-      // จัดการข้อผิดพลาดที่อาจเกิดขึ้นจากการเรียกใช้ Function
-      console.error("Unexpected error:", err);
-      alert("An unexpected error occurred. Please try again later.");
-    }
+    
   };
 
   return (
@@ -29,8 +24,9 @@ const LoginPage = () => {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             เข้าสู่ระบบ
           </h2>
-        </div>
 
+        </div>
+        
         <div className="mt-8 space-y-6">
           <button
             onClick={SignInWithOAuth}

@@ -26,5 +26,5 @@ export async function GET(request: Request) {
 
   // Redirect ไปยังหน้าหลักหรือหน้าที่คุณต้องการหลังจาก Login สำเร็จ
   // มักจะเป็นหน้า Dashboard หรือหน้า Home
-  return NextResponse.redirect(`${origin}/DashBoard`); // หรือ `return NextResponse.redirect(`${origin}/dashboard`);`
+  return NextResponse.redirect(`${origin}/Components/dashboard`); // หรือ `return NextResponse.redirect(`${origin}/dashboard`);`
 }

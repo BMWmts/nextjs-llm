@@ -8,22 +8,13 @@ const supabase: SupabaseClient = createClient();
 const LoginPage = () => {
   const SignInWithOAuth = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/v1/callback`,
         },
       });
-
-      if (error) {
-        console.error("Error signing in with Google:", error.message);
-        // แสดงข้อความ error ให้ผู้ใช้เห็น
-        alert("Login failed: " + error.message);
-      } else {
-        // ถ้าไม่มี error, ผู้ใช้จะถูก redirect ไปยัง Google สำหรับการยืนยันตัวตน
-        // และจากนั้นจะกลับมาที่ /auth/callback (ซึ่งจะจัดการโดย route.ts)
-        console.log("Redirecting to Google for authentication...");
-      }
+      // การเรียกใช้ signInWithOAuth จะเปิดหน้าต่างใหม่สำหรับการเข้าสู่ระบบ
     } catch (err) {
       // จัดการข้อผิดพลาดที่อาจเกิดขึ้นจากการเรียกใช้ Function
       console.error("Unexpected error:", err);

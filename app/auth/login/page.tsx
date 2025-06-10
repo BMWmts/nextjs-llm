@@ -29,11 +29,8 @@ const LoginPage = () => {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             เข้าสู่ระบบ
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            เลือกวิธีการเข้าสู่ระบบ
-          </p>
         </div>
-        
+
         <div className="mt-8 space-y-6">
           <button
             onClick={SignInWithOAuth}

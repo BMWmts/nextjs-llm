@@ -3,18 +3,33 @@ import React from "react";
 import { createClient } from "@/utils/supabase/client";
 import { SupabaseClient } from "@supabase/supabase-js";
 
+
 const LoginPage = () => {
   const supabase: SupabaseClient = createClient();
 
-    const SignInWithOAuth = async () => {
-    console.log("SignInWithOAuth function called.");
-    console.log("Redirect URL:", `${window.location.origin}/auth/v1/callback`); // <-- เพิ่มตรงนี้เพื่อยืนยัน URL
-
-    try {
+  const SignInWithOAuth = async () => {
+      supabase.auth.onAuthStateChange((event, session) => {
+  
+        if (session && session.provider_token) {
+    window.localStorage.setItem('oauth_provider_token', session.provider_token)
+  }
+  if (session && session.provider_refresh_token) {
+    window.localStorage.setItem('oauth_provider_refresh_token', session.provider_refresh_token)
+  }
+      if (event === 'SIGNED_OUT') {
+    window.localStorage.removeItem('oauth_provider_token')
+    window.localStorage.removeItem('oauth_provider_refresh_token')
+  }
+})
       const { data, error } = await supabase.auth.signInWithOAuth({ // <-- เพิ่ม data เข้ามาด้วย
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/v1/callback`,
+          queryParams:{
+            access_type:'offline',
+            prompt:'consent',
+            token: ''
+          }
         },
       });
 
@@ -27,11 +42,8 @@ const LoginPage = () => {
         // Supabase จะจัดการการ redirect ไป Google โดยตรง
         // และถ้าสำเร็จ Google จะ redirect กลับมาที่ /auth/v1/callback
       }
-    } catch (err) {
-      console.error("Unexpected error during OAuth process:", err); // <-- เปลี่ยนข้อความ error
-      alert("An unexpected error occurred. Please try again later.");
-    }
-  };
+    } 
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -54,5 +66,5 @@ const LoginPage = () => {
     </div>
   );
 };
-
 export default LoginPage;
+

@@ -30,12 +30,11 @@ export async function GET(request: Request) {
         console.log('User metadata:', user.user_metadata);
 
         const { data: profile, error: profileError } = await supabase
-          .from('profiles') // สมมติว่าคุณมีตารางชื่อ 'profiles'
+          .from('profiles')
           .upsert({ 
             id: user.id, 
             full_name: user.user_metadata.full_name, // ดึงจาก user_metadata
             avatar_url: user.user_metadata.avatar_url, // ดึงจาก user_metadata
-            // เพิ่มข้อมูลอื่นๆ ที่คุณต้องการเก็บ
           }, { onConflict: 'id' }) // ถ้า id ชนกันให้อัปเดต
           .select() // เลือกข้อมูลที่ upserted กลับมา
 

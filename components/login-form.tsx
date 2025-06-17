@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { createClient } from '@/lib/client'
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -24,9 +24,9 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'github',
+        provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/oauth?next=/protected`,
+          redirectTo: 'https://tvwmstjkbmbjtuvrxkba.supabase.co/auth/v1/callback',
         },
       })
 
@@ -49,7 +49,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
             <div className="flex flex-col gap-6">
               {error && <p className="text-sm text-destructive-500">{error}</p>}
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Logging in...' : 'Continue with Github'}
+                {isLoading ? 'Logging in...' : 'Continue with Google'}
               </Button>
             </div>
           </form>

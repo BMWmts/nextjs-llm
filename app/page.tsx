@@ -1,10 +1,8 @@
-import DashBoard from "./dashboard/page";
-
-
-export default function Home() {
+export default async function first() {
   return (
+   
     <>
-        <DashBoard />
+    hello
     </>
-  );
+  )
 }

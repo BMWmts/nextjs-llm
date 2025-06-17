@@ -1,29 +1,35 @@
-// app/auth/sign-in/route.ts
-import { createClient } from '@/utils/supabase/server'
-import { NextResponse } from 'next/server'
+import { createClient } from '@/utils/supabase/server';
+import { NextResponse } from 'next/server';
+import { type NextRequest } from 'next/server';
 
-export async function GET(request: Request) {
-  const { searchParams:{}, origin } = new URL(request.url)
-  const provider = 'google' // Hardcoded for this example
+export async function GET(request: NextRequest) {
+  const provider = 'google';
+  const supabase = createClient();
 
-  if (provider) {
-    const supabase = createClient()
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${origin}/auth/callback`,
-      },
-    })
+  // Determine the origin URL (e.g., http://localhost:3000)
+  const origin = request.nextUrl.origin;
 
-    if (error) {
-      console.error(error)
-      return NextResponse.redirect('/error') // Redirect to an error page
-    }
+  // This is the URL Google will redirect back to after authentication.
+  // This MUST match the path of your callback route handler.
+  const redirectTo = `${origin}/auth/v1/callback`;
 
-    if (data.url) {
-      return NextResponse.redirect(data.url) // Redirect to Google's auth page
-    }
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo,
+    },
+  });
+
+  if (error) {
+    console.error('Error initiating OAuth sign-in:', error);
+    return NextResponse.redirect(new URL('/error', origin));
   }
 
-  return NextResponse.redirect('/error')
+  if (data.url) {
+    // Redirect the user's browser to Google's authentication page
+    return NextResponse.redirect(data.url);
+  }
+
+  console.error('OAuth sign-in initiated but no URL was returned.');
+  return NextResponse.redirect(new URL('/error?message=OAuth_URL_Missing', origin));
 }

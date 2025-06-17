@@ -3,7 +3,7 @@
 const LoginButton = () => {
   const handleSignIn = () => {
     // Redirect to the server-side route that initiates OAuth
-    window.location.href = '/auth/sign-in';
+    window.location.href = '@app/auth/login';
   };
 
   return (

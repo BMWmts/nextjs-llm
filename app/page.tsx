@@ -1,8 +1,9 @@
-export default async function first() {
+import React from 'react'
+
+const Home = () => {
   return (
-   
-    <>
-    hello
-    </>
+    <div>Home</div>
   )
 }
+
+export default Home

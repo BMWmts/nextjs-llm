@@ -3,6 +3,7 @@ import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
+import { LogoutButton } from "@/components/logout-button"
 
 export default async function ProtectedPage() {
   const supabase = await createClient()
@@ -20,6 +21,7 @@ export default async function ProtectedPage() {
       <Button asChild>
         <Link href="/auth/logout">Logout</Link>
       </Button>
+      <LogoutButton />
     </div>
   )
 }

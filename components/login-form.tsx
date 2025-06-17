@@ -10,11 +10,27 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const supabase = createClient()
+  const router = useRouter()
+
+  useEffect(() => {
+    const checkUserAndRedirect = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        console.log('User is already logged in')
+        router.replace('/protected')
+      }
+    };
+
+    checkUserAndRedirect()
+  }, )
+
 
   const handleSocialLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,11 +42,13 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://tvwmstjkbmbjtuvrxkba.supabase.co/auth/v1/callback',
+          redirectTo: 'https://tvwmstjkbmbjtuvrxkba.supabase.co/auth/v1/callback'
         },
       })
 
-      if (error) throw error
+      if (error) {
+        throw error
+      }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred')
       setIsLoading(false)

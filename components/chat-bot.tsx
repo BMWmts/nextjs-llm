@@ -19,6 +19,7 @@ export function ChatBot() {
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -27,6 +28,19 @@ export function ChatBot() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Auto-resize textarea
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current
+    if (textarea) {
+      textarea.style.height = "auto"
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px` // Max height of 120px (about 5 lines)
+    }
+  }
+
+  useEffect(() => {
+    adjustTextareaHeight()
+  }, [input])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,6 +55,11 @@ export function ChatBot() {
     setMessages((prev) => [...prev, userMessage])
     setInput("")
     setIsLoading(true)
+
+    // Reset textarea height
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto"
+    }
 
     try {
       const response = await fetch("/api/chat", {
@@ -78,12 +97,23 @@ export function ChatBot() {
     }
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmit(e)
+    }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value)
+  }
+
   return (
-    <Card className="w-full max-w-2xl mx-auto h-[600px] flex flex-col">
+    <Card className="w-full max-w-4xl mx-auto h-[600px] flex flex-col rounded-lg">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bot className="h-5 w-5" />
-          AI Assistant (Gemini 2.0 Flash)
+          AI Assistant (Gemini 2.5 Flash)
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col p-0">
@@ -93,13 +123,14 @@ export function ChatBot() {
             <div className="text-center text-muted-foreground py-8">
               <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Start a conversation with the AI assistant!</p>
+              <p className="text-xs mt-2">Press Enter to send, Shift+Enter for new line</p>
             </div>
           )}
 
           {messages.map((message) => (
             <div key={message.id} className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
               {message.role === "assistant" && (
-                <Avatar className="h-8 w-8">
+                <Avatar className="h-8 w-8 flex-shrink-0">
                   <AvatarFallback className="bg-blue-500 text-white">
                     <Bot className="h-4 w-4" />
                   </AvatarFallback>
@@ -107,15 +138,15 @@ export function ChatBot() {
               )}
 
               <div
-                className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                className={`max-w-[75%] rounded-lg px-4 py-2 break-words max-h-[290px] overflow-y-auto ${
                   message.role === "user" ? "bg-blue-500 text-white ml-auto" : "bg-gray-100 text-gray-900"
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                <div className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</div>
               </div>
 
               {message.role === "user" && (
-                <Avatar className="h-8 w-8">
+                <Avatar className="h-8 w-8 flex-shrink-0">
                   <AvatarFallback className="bg-gray-500 text-white">
                     <User className="h-4 w-4" />
                   </AvatarFallback>
@@ -126,7 +157,7 @@ export function ChatBot() {
 
           {isLoading && (
             <div className="flex gap-3 justify-start">
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-8 w-8 flex-shrink-0">
                 <AvatarFallback className="bg-blue-500 text-white">
                   <Bot className="h-4 w-4" />
                 </AvatarFallback>
@@ -152,22 +183,26 @@ export function ChatBot() {
 
         {/* Input Form */}
         <div className="border-t p-4">
-          <form onSubmit={handleSubmit} className="flex gap-2">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              disabled={isLoading}
-            />
-            <Button type="submit" disabled={isLoading || !input.trim()}>
+          <form onSubmit={handleSubmit} className="flex gap-2 items-end">
+            <div className="flex-1 relative">
+              <textarea
+                ref={textareaRef}
+                value={input}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                placeholder="Type your message... (Enter to send, Shift+Enter for new line)"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none overflow-y-auto min-h-[40px] max-h-[120px]"
+                disabled={isLoading}
+                rows={1}
+              />
+            </div>
+            <Button type="submit" disabled={isLoading || !input.trim()} className="flex-shrink-0">
               <Send className="h-4 w-4" />
             </Button>
           </form>
+          <div className="text-xs text-gray-500 mt-1">Press Enter to send • Shift+Enter for new line</div>
         </div>
       </CardContent>
     </Card>
   )
 }
-
-export default ChatBot

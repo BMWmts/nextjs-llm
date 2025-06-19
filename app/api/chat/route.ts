@@ -8,7 +8,7 @@ export async function POST(req: Request) {
 
     // Initialize the Google Generative AI
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!)
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
 
     // Get the latest message from the user
     const latestMessage = messages[messages.length - 1]?.content || ""

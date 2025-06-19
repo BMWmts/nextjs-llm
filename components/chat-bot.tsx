@@ -8,29 +8,29 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Send, Bot, User } from "lucide-react"
 import { useRef, useEffect, useState } from "react"
 
-interface Message {
+interface Message { //กำหนดโครงสร้างของอ็อบเจกต์ ช่วยให้โค้ดมีความปลอดภัยและอ่านง่ายขึ้น
   id: string
   role: "user" | "assistant"
   content: string
 }
 
-export function ChatBot() {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+export function ChatBot() { //ใช้ Hook useState เพื่อจัดการ state ของข้อความทั้งหมด ในการสนทนา
+  const [messages, setMessages] = useState<Message[]>([])  //messages คืออาร์เรย์ของอ็อบเจกต์ Message setMessages คือฟังก์ชันสำหรับอัปเดต messages [] คือค่าเริ่มต้น (อาร์เรย์ว่าง)
+  const [input, setInput] = useState("") //State สำหรับเก็บ ข้อความที่ผู้ใช้กำลังพิมพ์ ในช่อง input
+  const [isLoading, setIsLoading] = useState(false) //State สำหรับระบุว่า กำลังรอการตอบกลับจาก AI อยู่หรือไม่ (เพื่อแสดงสถานะ loading และปิดใช้งานปุ่มส่งข้อความ)
+  const messagesEndRef = useRef<HTMLDivElement>(null) //ใช้ Hook useRef เพื่อสร้าง reference ไปยัง DOM element โดยเฉพาะคือ div ที่อยู่ท้ายสุดของ container ข้อความ ใช้สำหรับ เลื่อนหน้าจอลงไปที่ข้อความล่าสุด โดยอัตโนมัติ
+  const textareaRef = useRef<HTMLTextAreaElement>(null) //ใช้ useRef เพื่อสร้าง reference ไปยัง textarea element ใช้สำหรับ ปรับขนาด textarea อัตโนมัติ
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  const scrollToBottom = () => { //ฟังก์ชันนี้ใช้ scrollIntoView บน messagesEndRef เพื่อเลื่อนหน้าจอให้ข้อความล่าสุดแสดงขึ้นมา
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }) //ฟังก์ชันนี้ใช้ scrollIntoView บน messagesEndRef เพื่อเลื่อนหน้าจอให้ข้อความล่าสุดแสดงขึ้นมา
   }
 
-  useEffect(() => {
+  useEffect(() => { //Hook useEffect นี้จะถูกเรียกใช้ ทุกครั้งที่ messages state มีการเปลี่ยนแปลง (นั่นคือเมื่อมีข้อความใหม่เพิ่มเข้ามา) เพื่อให้หน้าจอเลื่อนลงไปดูข้อความล่าสุดเสมอ
     scrollToBottom()
   }, [messages])
 
   // Auto-resize textarea
-  const adjustTextareaHeight = () => {
+  const adjustTextareaHeight = () => { //ฟังก์ชันนี้ปรับความสูงของ textarea โดยอัตโนมัติให้พอดีกับเนื้อหาที่ผู้ใช้พิมพ์ แต่ไม่เกิน 120px
     const textarea = textareaRef.current
     if (textarea) {
       textarea.style.height = "auto"
@@ -38,23 +38,23 @@ export function ChatBot() {
     }
   }
 
-  useEffect(() => {
+  useEffect(() => { //Hook useEffect นี้จะถูกเรียกใช้ ทุกครั้งที่ input state มีการเปลี่ยนแปลง (เมื่อผู้ใช้พิมพ์ข้อความ) เพื่อปรับความสูงของ textarea
     adjustTextareaHeight()
   }, [input])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || isLoading) return
+  const handleSubmit = async (e: React.FormEvent) => { //ฟังก์ชันนี้จัดการเมื่อผู้ใช้ ส่งฟอร์ม (กดปุ่มส่งหรือ Enter)
+    e.preventDefault() //e.preventDefault(): ป้องกันการรีเฟรชหน้าเว็บที่เป็นพฤติกรรมเริ่มต้นของฟอร์ม HTML
+    if (!input.trim() || isLoading) return //รวจสอบว่าช่อง input ไม่ว่างเปล่า และไม่ได้กำลังโหลดอยู่
 
-    const userMessage: Message = {
+    const userMessage: Message = { //สร้างอ็อบเจกต์สำหรับข้อความของผู้ใช้
       id: Date.now().toString(),
       role: "user",
       content: input,
     }
 
-    setMessages((prev) => [...prev, userMessage])
-    setInput("")
-    setIsLoading(true)
+    setMessages((prev) => [...prev, userMessage]) //เพิ่มข้อความของผู้ใช้เข้าไปในอาร์เรย์ messages (โดยใช้ functional update เพื่อให้แน่ใจว่าได้ state ก่อนหน้าล่าสุด)
+    setInput("") //ล้างช่อง input
+    setIsLoading(true) //ตั้งค่า isLoading เป็น true เพื่อแสดงสถานะโหลด
 
     // Reset textarea height
     if (textareaRef.current) {
@@ -62,7 +62,7 @@ export function ChatBot() {
     }
 
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch("/api/chat", { //ส่งคำขอ POST ไปยัง API route /api/chat ที่อธิบายไปก่อนหน้านี้ พร้อมกับส่งอาร์เรย์ข้อความทั้งหมด (รวมถึงข้อความล่าสุดของผู้ใช้) ไปด้วย
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -72,9 +72,10 @@ export function ChatBot() {
         }),
       })
 
-      const data = await response.json()
+      const data = await response.json() //รอและแปลง Response ที่ได้จาก API ให้เป็น JSON
 
-      if (response.ok) {
+      if (response.ok) { //ตรวจสอบว่าคำขอ API สำเร็จหรือไม่ (HTTP status code 2xx)
+// สร้างอ็อบเจกต์ assistantMessage ด้วยเนื้อหาที่ได้จาก AI และเพิ่มลงใน messages state
         const assistantMessage: Message = {
           id: (Date.now() + 1).toString(),
           role: "assistant",

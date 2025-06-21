@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server"
 
 export async function GET(request: Request) {
   try {
-    const { searchParams, origin } = new URL(request.url)
+    const requestUrl = new URL(request.url)
+    const { searchParams, origin } = requestUrl
     const code = searchParams.get("code")
     const error = searchParams.get("error")
     const error_description = searchParams.get("error_description")
@@ -13,7 +14,8 @@ export async function GET(request: Request) {
       error,
       error_description,
       origin,
-      url: request.url,
+      fullUrl: request.url,
+      headers: Object.fromEntries(request.headers.entries()),
     })
 
     // Handle OAuth errors
@@ -44,11 +46,16 @@ export async function GET(request: Request) {
 
     console.log("Session created successfully for user:", data.user?.email)
 
-    // Always redirect to /protected first, then user can navigate to chat
+    // Create the redirect response
     const redirectUrl = `${origin}/protected`
-    console.log("Redirecting to:", redirectUrl)
+    console.log("Final redirect URL:", redirectUrl)
 
-    return NextResponse.redirect(redirectUrl)
+    const response = NextResponse.redirect(redirectUrl)
+
+    // Ensure cookies are set properly
+    response.headers.set("Cache-Control", "no-cache, no-store, max-age=0")
+
+    return response
   } catch (err) {
     console.error("OAuth route error:", err)
     const { origin } = new URL(request.url)

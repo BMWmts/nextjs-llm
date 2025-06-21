@@ -3,8 +3,8 @@
 import type React from "react"
 
 import { createClient } from "@/lib/supabase/client"
-import { Button } from "./ui/button"
-import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card"
+import { Button } from "@/components/ui/button"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 

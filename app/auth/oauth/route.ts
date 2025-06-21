@@ -1,34 +1,82 @@
-import { NextResponse } from 'next/server'
-// The client you created from the Server-Side Auth instructions
-import { createClient } from '@/lib/supabase/client'
+import { NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
-  const code = searchParams.get('code')
-  // if "next" is in param, use it as the redirect URL
-  let next = searchParams.get('next') ?? '/'
-  if (!next.startsWith('/')) {
-    // if "next" is not a relative URL, use the default
-    next = '/'
-  }
+  try {
+    const { searchParams, origin } = new URL(request.url)
+    const code = searchParams.get("code")
+    const error = searchParams.get("error")
+    const error_description = searchParams.get("error_description")
 
-  if (code) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
-      const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
-      const isLocalEnv = process.env.NODE_ENV === 'development'
-      if (isLocalEnv) {
-        // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
-        return NextResponse.redirect(`${origin}${next}`)
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`)
-      } else {
-        return NextResponse.redirect(`${origin}${next}`)
-      }
+    console.log("OAuth callback received:", {
+      code: !!code,
+      error,
+      error_description,
+      origin,
+      url: request.url,
+    })
+
+    // Handle OAuth errors
+    if (error) {
+      console.error("OAuth error:", error, error_description)
+      return NextResponse.redirect(`${origin}/auth/error?error=${encodeURIComponent(error_description || error)}`)
     }
-  }
 
-  // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/error`)
+    if (!code) {
+      console.error("No authorization code provided")
+      return NextResponse.redirect(`${origin}/auth/error?error=${encodeURIComponent("No authorization code provided")}`)
+    }
+
+    // Get redirect path
+    let next = searchParams.get("next") ?? "/protected"
+    if (!next.startsWith("/")) {
+      next = "/protected"
+    }
+
+    const supabase = await createClient()
+    console.log("Exchanging code for session...")
+
+    const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+
+    if (exchangeError) {
+      console.error("Session exchange failed:", exchangeError)
+      return NextResponse.redirect(`${origin}/auth/error?error=${encodeURIComponent(exchangeError.message)}`)
+    }
+
+    if (!data.session) {
+      console.error("No session created")
+      return NextResponse.redirect(`${origin}/auth/error?error=${encodeURIComponent("No session created")}`)
+    }
+
+    console.log("Session created successfully for user:", data.user?.email)
+
+    // Get the correct redirect URL based on environment
+    const getRedirectUrl = () => {
+      // Check if we're in production
+      if (process.env.NODE_ENV === "production") {
+        // Use Vercel URL if available
+        if (process.env.VERCEL_URL) {
+          return `https://${process.env.VERCEL_URL}`
+        }
+        // Use custom domain if set
+        if (process.env.NEXT_PUBLIC_SITE_URL) {
+          return process.env.NEXT_PUBLIC_SITE_URL
+        }
+        // Fallback to origin from request
+        return origin
+      }
+      // Development environment
+      return origin
+    }
+
+    const redirectUrl = getRedirectUrl()
+    console.log("Redirecting to:", `${redirectUrl}${next}`)
+
+    return NextResponse.redirect(`${redirectUrl}${next}`)
+  } catch (err) {
+    console.error("OAuth route error:", err)
+    const { origin } = new URL(request.url)
+    const errorMessage = err instanceof Error ? err.message : "Internal server error"
+    return NextResponse.redirect(`${origin}/auth/error?error=${encodeURIComponent(errorMessage)}`)
+  }
 }

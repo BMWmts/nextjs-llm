@@ -9,7 +9,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "./ui/card";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 

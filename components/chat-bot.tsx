@@ -3,8 +3,8 @@
 import type React from "react"
 
 import { Button } from "./ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
+import { Avatar, AvatarFallback } from "./ui/avatar"
 import { Send, User, History, MessageCircle } from "lucide-react"
 import { useRef, useEffect, useState } from "react"
 

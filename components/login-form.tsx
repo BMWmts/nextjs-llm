@@ -57,14 +57,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
             <form onSubmit={handleSocialLogin}>
               <div className="space-y-4">
                 {error && (
-                  <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
-                    <strong>Error:</strong> {error}
-                    <details className="mt-2 text-xs">
-                      <summary>Debug Info</summary>
-                      <p>Check browser console for more details</p>
-                      <p>Verify Supabase configuration and Google OAuth setup</p>
-                    </details>
-                  </div>
+                  <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">{error}</div>
                 )}
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Signing in..." : "Continue with Google"}

@@ -27,12 +27,6 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${origin}/auth/error?error=${encodeURIComponent("No authorization code provided")}`)
     }
 
-    // Get redirect path
-    let next = searchParams.get("next") ?? "/protected"
-    if (!next.startsWith("/")) {
-      next = "/protected"
-    }
-
     const supabase = await createClient()
     console.log("Exchanging code for session...")
 
@@ -50,29 +44,11 @@ export async function GET(request: Request) {
 
     console.log("Session created successfully for user:", data.user?.email)
 
-    // Get the correct redirect URL based on environment
-    const getRedirectUrl = () => {
-      // Check if we're in production
-      if (process.env.NODE_ENV === "production") {
-        // Use Vercel URL if available
-        if (process.env.VERCEL_URL) {
-          return `https://${process.env.VERCEL_URL}`
-        }
-        // Use custom domain if set
-        if (process.env.NEXT_PUBLIC_SITE_URL) {
-          return process.env.NEXT_PUBLIC_SITE_URL
-        }
-        // Fallback to origin from request
-        return origin
-      }
-      // Development environment
-      return origin
-    }
+    // Always redirect to /protected first, then user can navigate to chat
+    const redirectUrl = `${origin}/protected`
+    console.log("Redirecting to:", redirectUrl)
 
-    const redirectUrl = getRedirectUrl()
-    console.log("Redirecting to:", `${redirectUrl}${next}`)
-
-    return NextResponse.redirect(`${redirectUrl}${next}`)
+    return NextResponse.redirect(redirectUrl)
   } catch (err) {
     console.error("OAuth route error:", err)
     const { origin } = new URL(request.url)

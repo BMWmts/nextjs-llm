@@ -24,13 +24,9 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
       // Get the correct redirect URL based on environment
       const getRedirectUrl = () => {
         if (typeof window !== "undefined") {
-          // Client-side: use current origin
           return window.location.origin
         }
-        // Fallback (shouldn't happen in client component)
-        return process.env.NODE_ENV === "production"
-          ? process.env.NEXT_PUBLIC_SITE_URL || "https://your-app.vercel.app"
-          : "http://localhost:3000"
+        return "http://localhost:3000"
       }
 
       const redirectUrl = getRedirectUrl()
@@ -39,7 +35,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${redirectUrl}/auth/oauth?next=/protected`,
+          redirectTo: `${redirectUrl}/auth/oauth`,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
@@ -75,13 +71,18 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
                 {error && (
                   <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
                     <strong>Error:</strong> {error}
+                    <details className="mt-2 text-xs">
+                      <summary>Debug Info</summary>
+                      <p>Current URL: {typeof window !== "undefined" ? window.location.origin : "N/A"}</p>
+                      <p>Check Supabase OAuth settings</p>
+                    </details>
                   </div>
                 )}
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Signing in..." : "Continue with Google"}
                 </Button>
                 <div className="text-xs text-gray-500 text-center">
-                  <p>Make sure your Supabase OAuth redirect URLs include:</p>
+                  <p>Secure authentication powered by Supabase</p>
                 </div>
               </div>
             </form>

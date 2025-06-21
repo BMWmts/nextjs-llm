@@ -180,7 +180,7 @@ export function ChatBot() {
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Bot className="h-5 w-5" />
-            AI Assistant (Gemini 2.0 Flash)
+            AI Assistant
           </div>
           <Button variant="outline" onClick={loadChatHistory}>
             <History className="h-4 w-4 mr-2" />

@@ -1,25 +1,20 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import Foot from "./footer/page";
-
-
+import type React from "react"
+import type { Metadata } from "next"
+import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Negatron", 
-  description: "A sample project with Google Login and Tailwind CSS and LLM",
-};
+  title: "AI Chat Assistant",
+  description: "Chat with AI powered by Gemini",
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
-      <body>
-        {children}
-        <Foot />
-      </body>
+      <body className="antialiased">{children}</body>
     </html>
-  );
+  )
 }

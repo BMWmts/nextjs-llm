@@ -7,10 +7,7 @@ const Avatar = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElem
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn(
-        "relative flex h-12 w-12 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-slate-100 to-slate-200 ring-2 ring-white shadow-lg",
-        className,
-      )}
+      className={cn("relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gray-100", className)}
       {...props}
     />
   ),
@@ -49,10 +46,7 @@ const AvatarImage = React.forwardRef<
     return (
       <img
         ref={ref}
-        className={cn(
-          "aspect-square h-full w-full object-cover transition-all duration-300 hover:scale-105",
-          className,
-        )}
+        className={cn("aspect-square h-full w-full object-cover", className)}
         src={src || "/placeholder.svg"}
         {...props}
       />
@@ -68,7 +62,7 @@ const AvatarFallback = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
     <div
       ref={ref}
       className={cn(
-        "flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-slate-600 to-slate-700 text-sm font-semibold text-white",
+        "flex h-full w-full items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-gray-600",
         className,
       )}
       {...props}

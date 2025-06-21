@@ -61,23 +61,27 @@ export function LoginForm({
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Welcome!</CardTitle>
-          <CardDescription>Sign in to your account to continue</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSocialLogin}>
-            <div className="flex flex-col gap-6">
-              {error && <p className="text-sm text-destructive-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Logging in..." : "Continue with Google"}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+   <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <div className={cn("w-full max-w-md", className)} {...props}>
+        <Card className="border-gray-100">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl font-semibold">Welcome</CardTitle>
+            <CardDescription>Sign in to your account to continue</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSocialLogin}>
+              <div className="space-y-4">
+                {error && (
+                  <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">{error}</div>
+                )}
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Signing in..." : "Continue with Google"}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  );
+  )
 }

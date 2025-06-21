@@ -5,7 +5,7 @@ import Foot from "./footer/page";
 
 
 export const metadata: Metadata = {
-  title: "Next.js + Supabase oAuth,LLM", 
+  title: "Negatron", 
   description: "A sample project with Google Login and Tailwind CSS and LLM",
 };
 

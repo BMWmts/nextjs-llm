@@ -1,15 +1,24 @@
 "use client"
 
 import type React from "react"
+
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
 
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [currentUrl, setCurrentUrl] = useState<string>("")
+
+  useEffect(() => {
+    // Set the current URL on client side
+    if (typeof window !== "undefined") {
+      setCurrentUrl(window.location.origin)
+    }
+  }, [])
 
   const handleSocialLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,13 +28,17 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 
     try {
       console.log("Starting OAuth login...")
+      console.log("Current origin:", currentUrl)
+
+      // Use the current origin for redirect
+      const redirectUrl = currentUrl || window.location.origin
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/oauth?next=/protected`,
+          redirectTo: `${redirectUrl}/auth/oauth`,
           queryParams: {
-            access_type: "offline",
+            access_type: "online",
             prompt: "consent",
           },
         },
@@ -57,9 +70,28 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
             <form onSubmit={handleSocialLogin}>
               <div className="space-y-4">
                 {error && (
-                  <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">{error}</div>
+                  <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
+                    <strong>Error:</strong> {error}
+                    <details className="mt-2 text-xs">
+                      <summary>Debug Info</summary>
+                      <p>Current URL: {currentUrl}</p>
+                      <p>Redirect will go to: {currentUrl}/auth/oauth</p>
+                    </details>
+                  </div>
                 )}
-                <Button type="submit" className="w-full" disabled={isLoading}>
+
+                {/* Debug info for development */}
+                {process.env.NODE_ENV === "development" && (
+                  <div className="p-3 text-xs bg-blue-50 border border-blue-200 rounded-lg">
+                    <p>
+                      <strong>Debug Info:</strong>
+                    </p>
+                    <p>Current Origin: {currentUrl}</p>
+                    <p>Redirect URL: {currentUrl}/auth/oauth</p>
+                  </div>
+                )}
+
+                <Button type="submit" className="w-full" disabled={isLoading || !currentUrl}>
                   {isLoading ? "Signing in..." : "Continue with Google"}
                 </Button>
               </div>

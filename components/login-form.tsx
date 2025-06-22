@@ -38,7 +38,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
         options: {
           redirectTo: `${redirectUrl}/auth/oauth`,
           queryParams: {
-            access_type: "",
+            access_type: "offline",
             prompt: "consent",
           },
         },

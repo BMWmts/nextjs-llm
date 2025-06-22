@@ -80,25 +80,10 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
                   </div>
                 )}
 
-                {/* Debug info for development */}
-                {process.env.NODE_ENV === "development" && (
-                  <div className="p-3 text-xs bg-blue-50 border border-blue-200 rounded-lg">
-                    <p>
-                      <strong>Debug Info:</strong>
-                    </p>
-                    <p>Current Origin: {currentUrl}</p>
-                    <p>Redirect URL: {currentUrl}/auth/oauth</p>
-                  </div>
-                )}
-
                 <Button type="submit" className="w-full" disabled={isLoading || !currentUrl}>
                   {isLoading ? "Signing in..." : "Continue with Google"}
                 </Button>
 
-                <div className="text-xs text-gray-500 text-center">
-                  <p>Make sure your Supabase redirect URLs include:</p>
-                  <p className="font-mono text-xs mt-1">{currentUrl}/auth/oauth</p>
-                </div>
               </div>
             </form>
           </CardContent>

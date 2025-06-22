@@ -47,7 +47,7 @@ export async function GET(request: Request) {
     console.log("Session created successfully for user:", data.user?.email)
 
     // Create the redirect response
-    const redirectUrl = `${origin}/protected`
+    const redirectUrl = `https://negatron-seven.vercel.app/protected`
     console.log("Final redirect URL:", redirectUrl)
 
     const response = NextResponse.redirect(redirectUrl)

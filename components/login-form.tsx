@@ -21,10 +21,10 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
   }, [])
 
   const handleSocialLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault() // หยุดการรีเฟรชหน้าเว็บ
     const supabase = createClient()
     setIsLoading(true)
-    setError(null)
+    setError(null) //ล้างข้อความผิดพลาดเก่าๆ ออกไป
 
     try {
       console.log("Starting OAuth login...")
